@@ -2,36 +2,32 @@
     let dragStart = false
     let div
     let startX, startY = 0
+    let currentId
 
-    const snapShot = (e) => {
+    const snapShot = (x, y, w, h) => {
         console.log('snap shot')
-        e.stopPropagation()
         html2canvas(document.body, {
             onrendered: function(canvas) {
                 const newCanvas = document.createElement('canvas')
+                newCanvas.width = w
+                newCanvas.height = h
                 const ctx = newCanvas.getContext('2d')
                 const image = new Image()
                 image.onload = function(event){
-                    ctx.drawImage(this, 100, 100, 100, 100, 100, 100, 100, 100)
+                    ctx.drawImage(this, x, y, w, h, 0, 0, w, h)
                     document.getElementById("result").src = newCanvas.toDataURL()
                 }
                 image.src = canvas.toDataURL()
             }
         });
     }
-
-    const createSnapBtn = () => {
-        const btn = document.createElement('button')
-        btn.innerText = '📷'
-        btn.onclick = snapShot
-        return btn
-    }
-
+    
     const evtMouseDown = (e) => {
         dragStart = true
         document.body.style.userSelect = 'none'
         div = document.createElement('div')
-        div.id = 'range'
+        currentId = `range-${Math.round(Math.random()*1000)}`
+        div.id = currentId
         div.style.backgroundColor = '#ddd'
         div.style.border = '1px solid #aaa'
         div.style.opacity = 0.5
@@ -76,8 +72,8 @@
 
     const evtMouseUp = (e) => {
         dragStart = false
-        document.body.style.userSelect = 'auto'
-        document.body.appendChild(createSnapBtn())
+        const rect = document.getElementById(currentId).getBoundingClientRect()
+        snapShot(rect.x, rect.y, rect.width, rect.height)
         console.log('mouse up', e)
     }
 
